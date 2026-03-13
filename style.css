@@ -1,0 +1,87 @@
+/* Variables globales */
+:root {
+    --color-primary: #4CAF50;
+    --color-secondary: #f5f5f5;
+    --color-text: #333;
+    --spacing: 1rem;
+    --font-family: 'Arial', sans-serif;
+}
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+}
+
+/* Header */
+header {
+    background-color: var(--color-primary);
+    color: white;
+    padding: var(--spacing);
+    text-align: center;
+}
+
+/* Layout principal */
+main {
+    display: flex;
+    min-height: 80vh;
+}
+
+/* Sidebar */
+aside {
+    width: 200px;
+    background-color: var(--color-secondary);
+    padding: var(--spacing);
+}
+
+/* Lista de tareas */
+.tasks {
+    flex: 1;
+    padding: var(--spacing);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+}
+
+/* Tarjetas de tareas: transición suave, colores por prioridad y hover animado */
+.task-card {
+    background-color: white;
+    border-left: 5px solid;
+    padding: var(--spacing);
+    border-radius: 5px;
+    transition: all 0.3s ease; /* transición suave */
+}
+
+/* Colores según prioridad */
+.task-card.high { border-color: red; }
+.task-card.medium { border-color: orange; }
+.task-card.low { border-color: green; }
+
+/* Hover animado */
+.task-card:hover {
+    transform: translateY(-5px); /* sube la tarjeta */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* sombra suave */
+}
+
+/* Badge */
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 3px;
+    font-size: 0.8rem;
+}
+
+/* Media Queries para móviles */
+@media (max-width: 768px) {
+    main {
+        flex-direction: column;
+    }
+
+    aside {
+        width: 100%;
+    }
+}
