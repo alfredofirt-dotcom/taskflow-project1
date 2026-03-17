@@ -53,6 +53,11 @@ aside {
     border-radius: 5px;
     transition: all 0.3s ease; /* transición suave */
 }
+/*Esto es para completar la tarea, se le baja la opacidad y se le pone un tachado al texto*/
+.task-card.completed {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
 
 /* Colores según prioridad */
 .task-card.high { border-color: red; }
