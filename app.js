@@ -68,9 +68,9 @@ function updateStats() {
     const completed = tasks.filter(t => t.completed).length;
     const pending = total - completed;
 
-    totalTasks.textContent = total;
-    completedTasks.textContent = completed;
-    pendingTasks.textContent = pending;
+    if(totalTasks) totalTasks.textContent = total;
+    if(completedTasks) completedTasks.textContent = completed;
+    if(pendingTasks) pendingTasks.textContent = pending;
 }
 
 // Renderizar tareas
@@ -126,3 +126,25 @@ searchInput.addEventListener("input", () => {
 // --------------------------
 addTaskBtn.addEventListener("click", addTask);
 document.addEventListener("DOMContentLoaded", renderTasks);
+
+// --------------------------
+// MODO OSCURO
+// --------------------------
+const toggleButton = document.getElementById("darkModeToggle");
+
+// Al cargar la página
+if(localStorage.getItem("darkMode") === "true"){
+  document.body.classList.add("dark-mode");
+  toggleButton.textContent = "☀️ Modo Claro";
+}
+
+// Al hacer click
+toggleButton.addEventListener("click", () => {
+  document.body.classList.toggle("dark-mode");
+
+  localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+
+  toggleButton.textContent = document.body.classList.contains("dark-mode")
+    ? "☀️ Modo Claro"
+    : "🌙 Modo Oscuro";
+});

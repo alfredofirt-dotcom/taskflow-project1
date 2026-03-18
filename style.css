@@ -7,6 +7,13 @@
     --font-family: 'Arial', sans-serif;
 }
 
+body {
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+    font-family: var(--font-family);
+    transition: background-color 0.3s, color 0.3s;
+}
+
 /* Reset básico */
 * {
     margin: 0;
@@ -21,6 +28,19 @@ header {
     color: white;
     padding: var(--spacing);
     text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header button {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: white;
+    color: var(--color-primary);
+    transition: background-color 0.3s, color 0.3s;
 }
 
 /* Layout principal */
@@ -45,15 +65,15 @@ aside {
     gap: var(--spacing);
 }
 
-/* Tarjetas de tareas: transición suave, colores por prioridad y hover animado */
+/* Tarjetas de tareas */
 .task-card {
     background-color: white;
     border-left: 5px solid;
     padding: var(--spacing);
     border-radius: 5px;
-    transition: all 0.3s ease; /* transición suave */
+    transition: all 0.3s ease;
 }
-/*Esto es para completar la tarea, se le baja la opacidad y se le pone un tachado al texto*/
+
 .task-card.completed {
     opacity: 0.6;
     text-decoration: line-through;
@@ -66,8 +86,8 @@ aside {
 
 /* Hover animado */
 .task-card:hover {
-    transform: translateY(-5px); /* sube la tarjeta */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* sombra suave */
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 /* Badge */
@@ -80,6 +100,15 @@ aside {
     font-size: 0.8rem;
 }
 
+/* Inputs y botones */
+input, select, button {
+    padding: 0.4rem;
+    margin: 0.2rem 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    transition: background-color 0.3s, color 0.3s, border 0.3s;
+}
+
 /* Media Queries para móviles */
 @media (max-width: 768px) {
     main {
@@ -89,4 +118,41 @@ aside {
     aside {
         width: 100%;
     }
+}
+
+/* ===================== */
+/* 🌙 MODO OSCURO */
+/* ===================== */
+body.dark-mode {
+    --color-primary: #1e1e1e;
+    --color-secondary: #2c2c2c;
+    --color-text: #f5f5f5;
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+}
+
+body.dark-mode aside {
+    background-color: var(--color-secondary);
+}
+
+body.dark-mode header {
+    background-color: #333;
+}
+
+body.dark-mode header button {
+    background-color: var(--color-text);
+    color: #333;
+}
+
+body.dark-mode .task-card {
+    background-color: #1e1e1e;
+    color: var(--color-text);
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode button {
+    background-color: #2c2c2c;
+    color: var(--color-text);
+    border: 1px solid #444;
 }

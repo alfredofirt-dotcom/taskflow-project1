@@ -10,51 +10,44 @@
 <body>
 
 <header>
-<h1>TaskFlow</h1>
+  <h1>TaskFlow</h1>
+  <button id="darkModeToggle">🌙 Modo Oscuro</button>
 </header>
 
 <main>
 
 <aside>
-<h2>Proyectos</h2>
-<ul>
-<li>Personal</li>
-<li>Trabajo</li>
-<li>Otros</li>
-</ul>
+  <h2>Proyectos</h2>
+  <ul>
+    <li>Personal</li>
+    <li>Trabajo</li>
+    <li>Otros</li>
+  </ul>
 </aside>
 
 <section class="tasks-section">
 
-<!-- CONTROLES PARA CREAR TAREAS -->
+  <!-- CONTROLES PARA CREAR TAREAS -->
+  <input type="text" id="taskInput" placeholder="Nueva tarea">
+  <select id="categorySelect">
+    <option value="Personal">Personal</option>
+    <option value="Trabajo">Trabajo</option>
+    <option value="Otros">Otros</option>
+  </select>
+  <select id="prioritySelect">
+    <option value="high">Alta</option>
+    <option value="medium">Media</option>
+    <option value="low">Baja</option>
+  </select>
+  <button id="addTaskBtn">Añadir tarea</button>
 
-<input type="text" id="taskInput" placeholder="Nueva tarea">
+  <input type="text" id="searchInput" placeholder="Buscar tarea">
 
-<select id="categorySelect">
-<option value="Personal">Personal</option>
-<option value="Trabajo">Trabajo</option>
-<option value="Otros">Otros</option>
-</select>
-
-<select id="prioritySelect">
-<option value="high">Alta</option>
-<option value="medium">Media</option>
-<option value="low">Baja</option>
-</select>
-
-<button id="addTaskBtn">Añadir tarea</button>
-
-<input type="text" id="searchInput" placeholder="Buscar tarea">
-
-<!-- CONTENEDOR DE TAREAS -->
-
-<section class="tasks" id="taskList"></section>
+  <!-- CONTENEDOR DE TAREAS -->
+  <section class="tasks" id="taskList"></section>
 
 </section>
 
-</main>
-
 <script src="app.js"></script>
-
 </body>
 </html>
