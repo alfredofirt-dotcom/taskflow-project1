@@ -1,44 +1,37 @@
-// --------------------------
-// ELEMENTOS DEL DOM
-// --------------------------
 const totalTasks = document.getElementById("totalTasks");
 const completedTasks = document.getElementById("completedTasks");
 const pendingTasks = document.getElementById("pendingTasks");
+
+const completedPercent = document.getElementById("completedPercent");
+const pendingPercent = document.getElementById("pendingPercent");
+
+const donutChart = document.getElementById("donutChart");
+const donutText = document.getElementById("donutText");
+
+const completedLabel = document.getElementById("completedLabel");
+const pendingLabel = document.getElementById("pendingLabel");
 
 const taskInput = document.getElementById("taskInput");
 const categorySelect = document.getElementById("categorySelect");
 const prioritySelect = document.getElementById("prioritySelect");
 const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
-const searchInput = document.getElementById("searchInput");
 
-// --------------------------
-// CARGAR TAREAS DESDE LOCALSTORAGE
-// --------------------------
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-// --------------------------
-// FUNCIONES
-// --------------------------
-
-// Guardar tareas en LocalStorage
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-// Añadir tarea
 function addTask() {
     const text = taskInput.value.trim();
-    const category = categorySelect.value;
-    const priority = prioritySelect.value;
-
-    if (text === "") return;
+    if (!text) return;
 
     const task = {
         id: Date.now(),
-        text: text,
-        category: category,
-        priority: priority,
+        text,
+        category: categorySelect.value,
+        priority: prioritySelect.value,
         completed: false
     };
 
@@ -48,103 +41,85 @@ function addTask() {
     renderTasks();
 }
 
-// Eliminar tarea
-function deleteTask(index) {
-    tasks.splice(index, 1);
+function deleteTask(i) {
+    tasks.splice(i, 1);
     saveTasks();
     renderTasks();
 }
 
-// Marcar tarea como completada
-function toggleComplete(index) {
-    tasks[index].completed = !tasks[index].completed;
+function toggleComplete(i) {
+    tasks[i].completed = !tasks[i].completed;
     saveTasks();
     renderTasks();
 }
 
-// Actualizar estadísticas
 function updateStats() {
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
     const pending = total - completed;
 
-    if(totalTasks) totalTasks.textContent = total;
-    if(completedTasks) completedTasks.textContent = completed;
-    if(pendingTasks) pendingTasks.textContent = pending;
+    const completedPerc = total ? Math.round((completed / total) * 100) : 0;
+    const pendingPerc = total ? Math.round((pending / total) * 100) : 0;
+
+    totalTasks.textContent = total;
+    completedTasks.textContent = completed;
+    pendingTasks.textContent = pending;
+
+    completedPercent.textContent = completedPerc + "%";
+    pendingPercent.textContent = pendingPerc + "%";
+
+    // DONUT
+    donutChart.style.background = `conic-gradient(
+        #4CAF50 0% ${completedPerc}%,
+        #f44336 ${completedPerc}% 100%
+    )`;
+
+    donutText.textContent = completedPerc + "%";
+
+    completedLabel.textContent = completedPerc + "%";
+    pendingLabel.textContent = pendingPerc + "%";
 }
 
-// Renderizar tareas
 function renderTasks() {
     taskList.innerHTML = "";
 
-    tasks.forEach((task, index) => {
-        const card = document.createElement("div");
-        card.classList.add("task-card", task.priority);
-        if (task.completed) card.classList.add("completed");
+    tasks.forEach((task, i) => {
+        const div = document.createElement("div");
+        div.className = `task-card ${task.priority} ${task.completed ? "completed" : ""}`;
 
-        card.innerHTML = `
+        div.innerHTML = `
             <h3>${task.text}</h3>
-            <p>Categoría: ${task.category}</p>
-            <span class="badge ${task.priority}">${task.priority}</span>
+            <p>${task.category}</p>
         `;
 
-        // Botón completar
-        const completeBtn = document.createElement("button");
-        completeBtn.textContent = "✔";
-        completeBtn.title = "Marcar como completada";
-        completeBtn.addEventListener("click", () => toggleComplete(index));
+        const btn1 = document.createElement("button");
+        btn1.textContent = "✔";
+        btn1.onclick = () => toggleComplete(i);
 
-        // Botón eliminar
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Eliminar";
-        deleteBtn.title = "Eliminar tarea";
-        deleteBtn.addEventListener("click", () => deleteTask(index));
+        const btn2 = document.createElement("button");
+        btn2.textContent = "X";
+        btn2.onclick = () => deleteTask(i);
 
-        card.appendChild(completeBtn);
-        card.appendChild(deleteBtn);
+        div.appendChild(btn1);
+        div.appendChild(btn2);
 
-        taskList.appendChild(card);
+        taskList.appendChild(div);
     });
 
-    // Actualizar estadísticas al final
     updateStats();
 }
 
-// Buscador
-searchInput.addEventListener("input", () => {
-    const filter = searchInput.value.toLowerCase();
-    const cards = taskList.getElementsByClassName("task-card");
-
-    for (let card of cards) {
-        const text = card.querySelector("h3").textContent.toLowerCase();
-        card.style.display = text.includes(filter) ? "" : "none";
-    }
-});
-
-// --------------------------
-// EVENTOS
-// --------------------------
 addTaskBtn.addEventListener("click", addTask);
 document.addEventListener("DOMContentLoaded", renderTasks);
 
-// --------------------------
-// MODO OSCURO
-// --------------------------
+// 🌙 DARK MODE
 const toggleButton = document.getElementById("darkModeToggle");
 
-// Al cargar la página
 if(localStorage.getItem("darkMode") === "true"){
-  document.body.classList.add("dark-mode");
-  toggleButton.textContent = "☀️ Modo Claro";
+    document.body.classList.add("dark-mode");
 }
 
-// Al hacer click
-toggleButton.addEventListener("click", () => {
-  document.body.classList.toggle("dark-mode");
-
-  localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
-
-  toggleButton.textContent = document.body.classList.contains("dark-mode")
-    ? "☀️ Modo Claro"
-    : "🌙 Modo Oscuro";
-});
+toggleButton.onclick = () => {
+    document.body.classList.toggle("dark-mode");
+    localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+};
