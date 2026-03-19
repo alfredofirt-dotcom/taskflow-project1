@@ -17,12 +17,23 @@ const prioritySelect = document.getElementById("prioritySelect");
 const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
 
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+// FILTRO
+let currentFilter = "all"; // all, pending, completed
 
+// Cargar tareas con protección
+let tasks = [];
+try {
+    tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+} catch (error) {
+    tasks = [];
+}
+
+// Guardar
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+// Añadir tarea
 function addTask() {
     const text = taskInput.value.trim();
     if (!text) return;
@@ -36,23 +47,50 @@ function addTask() {
     };
 
     tasks.push(task);
-    saveTasks();
+    updateAndRender();
     taskInput.value = "";
+}
+
+// Eliminar por ID
+function deleteTask(id) {
+    tasks = tasks.filter(task => task.id !== id);
+    updateAndRender();
+}
+
+// Completar por ID
+function toggleComplete(id) {
+    tasks = tasks.map(task =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+    );
+    updateAndRender();
+}
+
+// Editar tarea
+function editTask(id) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const newText = prompt("Editar tarea:", task.text);
+
+    if (newText !== null && newText.trim() !== "") {
+        task.text = newText.trim();
+        updateAndRender();
+    }
+}
+
+// Cambiar filtro
+function setFilter(filter) {
+    currentFilter = filter; // all, pending, completed
     renderTasks();
 }
 
-function deleteTask(i) {
-    tasks.splice(i, 1);
+// Guardar + render
+function updateAndRender() {
     saveTasks();
     renderTasks();
 }
 
-function toggleComplete(i) {
-    tasks[i].completed = !tasks[i].completed;
-    saveTasks();
-    renderTasks();
-}
-
+// Estadísticas
 function updateStats() {
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
@@ -68,7 +106,6 @@ function updateStats() {
     completedPercent.textContent = completedPerc + "%";
     pendingPercent.textContent = pendingPerc + "%";
 
-    // DONUT
     donutChart.style.background = `conic-gradient(
         #4CAF50 0% ${completedPerc}%,
         #f44336 ${completedPerc}% 100%
@@ -80,10 +117,19 @@ function updateStats() {
     pendingLabel.textContent = pendingPerc + "%";
 }
 
+// Render
 function renderTasks() {
     taskList.innerHTML = "";
 
-    tasks.forEach((task, i) => {
+    // Filtrar según currentFilter
+    let filteredTasks = tasks;
+    if (currentFilter === "pending") {
+        filteredTasks = tasks.filter(t => !t.completed);
+    } else if (currentFilter === "completed") {
+        filteredTasks = tasks.filter(t => t.completed);
+    }
+
+    filteredTasks.forEach(task => {
         const div = document.createElement("div");
         div.className = `task-card ${task.priority} ${task.completed ? "completed" : ""}`;
 
@@ -92,16 +138,21 @@ function renderTasks() {
             <p>${task.category}</p>
         `;
 
-        const btn1 = document.createElement("button");
-        btn1.textContent = "✔";
-        btn1.onclick = () => toggleComplete(i);
+        const btnComplete = document.createElement("button");
+        btnComplete.textContent = "✔";
+        btnComplete.onclick = () => toggleComplete(task.id);
 
-        const btn2 = document.createElement("button");
-        btn2.textContent = "X";
-        btn2.onclick = () => deleteTask(i);
+        const btnEdit = document.createElement("button");
+        btnEdit.textContent = "✏️";
+        btnEdit.onclick = () => editTask(task.id);
 
-        div.appendChild(btn1);
-        div.appendChild(btn2);
+        const btnDelete = document.createElement("button");
+        btnDelete.textContent = "X";
+        btnDelete.onclick = () => deleteTask(task.id);
+
+        div.appendChild(btnComplete);
+        div.appendChild(btnEdit);
+        div.appendChild(btnDelete);
 
         taskList.appendChild(div);
     });
@@ -109,13 +160,21 @@ function renderTasks() {
     updateStats();
 }
 
+// Eventos
 addTaskBtn.addEventListener("click", addTask);
+
+taskInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        addTask();
+    }
+});
+
 document.addEventListener("DOMContentLoaded", renderTasks);
 
 // 🌙 DARK MODE
 const toggleButton = document.getElementById("darkModeToggle");
 
-if(localStorage.getItem("darkMode") === "true"){
+if (localStorage.getItem("darkMode") === "true") {
     document.body.classList.add("dark-mode");
 }
 

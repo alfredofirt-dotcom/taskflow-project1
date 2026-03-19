@@ -5,6 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TaskFlow</title>
 <link rel="stylesheet" href="style.css">
+<style>
+  /* CENTRAR BOTONES DE FILTRO ABAJO */
+  .filter-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 30px 0 10px 0; /* margen arriba y abajo */
+  }
+
+  .filter-buttons button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      transition: 0.2s;
+  }
+
+  .filter-buttons button:hover {
+      background-color: #45a049;
+  }
+</style>
 </head>
 
 <body>
@@ -64,6 +88,13 @@
   <input type="text" id="searchInput" placeholder="Buscar tarea">
 
   <section class="tasks" id="taskList"></section>
+
+  <!-- BOTONES DE FILTRO ABAJO -->
+  <div class="filter-buttons">
+      <button onclick="setFilter('all')">Todas</button>
+      <button onclick="setFilter('pending')">Pendientes</button>
+      <button onclick="setFilter('completed')">Completadas</button>
+  </div>
 
 </section>
 
