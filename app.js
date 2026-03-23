@@ -1,3 +1,6 @@
+// --------------------------
+// VARIABLES DEL DOM
+// --------------------------
 const totalTasks = document.getElementById("totalTasks");
 const completedTasks = document.getElementById("completedTasks");
 const pendingTasks = document.getElementById("pendingTasks");
@@ -18,17 +21,26 @@ const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
 
 // FILTRO
-let currentFilter = "all"; // all, pending, completed
+let currentFilter = "all";
 
-// Cargar tareas con protección
+// Traducción de prioridad
+const priorityText = {
+    high: "Alta",
+    medium: "Media",
+    low: "Baja"
+};
+
+// --------------------------
+// CARGAR TAREAS
+// --------------------------
 let tasks = [];
 try {
     tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-} catch (error) {
+} catch {
     tasks = [];
 }
 
-// Guardar
+// Guardar tareas
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
@@ -51,13 +63,13 @@ function addTask() {
     taskInput.value = "";
 }
 
-// Eliminar por ID
+// Eliminar tarea
 function deleteTask(id) {
     tasks = tasks.filter(task => task.id !== id);
     updateAndRender();
 }
 
-// Completar por ID
+// Completar tarea
 function toggleComplete(id) {
     tasks = tasks.map(task =>
         task.id === id ? { ...task, completed: !task.completed } : task
@@ -78,9 +90,9 @@ function editTask(id) {
     }
 }
 
-// Cambiar filtro
+// Filtro
 function setFilter(filter) {
-    currentFilter = filter; // all, pending, completed
+    currentFilter = filter;
     renderTasks();
 }
 
@@ -90,7 +102,9 @@ function updateAndRender() {
     renderTasks();
 }
 
-// Estadísticas
+// --------------------------
+// ESTADÍSTICAS Y DONUT
+// --------------------------
 function updateStats() {
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
@@ -117,12 +131,14 @@ function updateStats() {
     pendingLabel.textContent = pendingPerc + "%";
 }
 
-// Render
+// --------------------------
+// RENDER TAREAS
+// --------------------------
 function renderTasks() {
     taskList.innerHTML = "";
 
-    // Filtrar según currentFilter
     let filteredTasks = tasks;
+
     if (currentFilter === "pending") {
         filteredTasks = tasks.filter(t => !t.completed);
     } else if (currentFilter === "completed") {
@@ -131,54 +147,90 @@ function renderTasks() {
 
     filteredTasks.forEach(task => {
         const div = document.createElement("div");
-        div.className = `task-card ${task.priority} ${task.completed ? "completed" : ""}`;
+
+        div.className = `
+            flex justify-between items-center p-4 rounded border-l-4 bg-white dark:bg-gray-800 shadow
+            ${task.completed ? "line-through opacity-60" : ""}
+            ${task.priority === "high" ? "border-red-500" : ""}
+            ${task.priority === "medium" ? "border-yellow-500" : ""}
+            ${task.priority === "low" ? "border-green-500" : ""}
+        `;
 
         div.innerHTML = `
-            <h3>${task.text}</h3>
-            <p>${task.category}</p>
+            <div>
+                <h3 class="font-semibold">${task.text}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">${task.category}</p>
+
+                <span class="
+                    inline-block mt-1 px-2 py-1 text-xs rounded font-semibold
+                    ${task.priority === "high" ? "bg-red-500 text-white" : ""}
+                    ${task.priority === "medium" ? "bg-yellow-500 text-white" : ""}
+                    ${task.priority === "low" ? "bg-green-500 text-white" : ""}
+                ">
+                    ${priorityText[task.priority]}
+                </span>
+            </div>
         `;
 
         const btnComplete = document.createElement("button");
         btnComplete.textContent = "✔";
+        btnComplete.className = "bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded";
         btnComplete.onclick = () => toggleComplete(task.id);
 
         const btnEdit = document.createElement("button");
         btnEdit.textContent = "✏️";
+        btnEdit.className = "bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded";
         btnEdit.onclick = () => editTask(task.id);
 
         const btnDelete = document.createElement("button");
         btnDelete.textContent = "X";
+        btnDelete.className = "bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded";
         btnDelete.onclick = () => deleteTask(task.id);
 
-        div.appendChild(btnComplete);
-        div.appendChild(btnEdit);
-        div.appendChild(btnDelete);
+        const buttonsDiv = document.createElement("div");
+        buttonsDiv.className = "flex gap-2";
+        buttonsDiv.appendChild(btnComplete);
+        buttonsDiv.appendChild(btnEdit);
+        buttonsDiv.appendChild(btnDelete);
 
+        div.appendChild(buttonsDiv);
         taskList.appendChild(div);
     });
 
     updateStats();
 }
 
-// Eventos
+// --------------------------
+// EVENTOS
+// --------------------------
 addTaskBtn.addEventListener("click", addTask);
 
 taskInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-        addTask();
-    }
+    if (e.key === "Enter") addTask();
 });
 
 document.addEventListener("DOMContentLoaded", renderTasks);
 
-// 🌙 DARK MODE
-const toggleButton = document.getElementById("darkModeToggle");
+// --------------------------
+// 🌙 MODO OSCURO FUNCIONAL
+// --------------------------
+const darkModeToggle = document.getElementById("darkModeToggle");
 
+// Cargar estado guardado al iniciar
 if (localStorage.getItem("darkMode") === "true") {
-    document.body.classList.add("dark-mode");
+    document.documentElement.classList.add("dark");
+    darkModeToggle.textContent = "☀️ Modo Claro";
+} else {
+    darkModeToggle.textContent = "🌙 Modo Oscuro";
 }
 
-toggleButton.onclick = () => {
-    document.body.classList.toggle("dark-mode");
-    localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
-};
+// Evento click
+darkModeToggle.addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark");
+
+    const isDark = document.documentElement.classList.contains("dark");
+    localStorage.setItem("darkMode", isDark);
+
+    // Cambiar texto del botón
+    darkModeToggle.textContent = isDark ? "☀️ Modo Claro" : "🌙 Modo Oscuro";
+});

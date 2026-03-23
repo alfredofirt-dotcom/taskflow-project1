@@ -4,100 +4,96 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TaskFlow</title>
-<link rel="stylesheet" href="style.css">
-<style>
-  /* CENTRAR BOTONES DE FILTRO ABAJO */
-  .filter-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin: 30px 0 10px 0; /* margen arriba y abajo */
-  }
 
-  .filter-buttons button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      background-color: #4CAF50;
-      color: white;
-      transition: 0.2s;
-  }
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
 
-  .filter-buttons button:hover {
-      background-color: #45a049;
+<!-- CONFIGURAR DARK MODE EN TAILWIND -->
+<script>
+  tailwind.config = {
+    darkMode: 'class'
   }
-</style>
+</script>
 </head>
 
-<body>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans transition-all">
 
-<header>
-  <h1>TaskFlow</h1>
-  <button id="darkModeToggle">🌙 Modo Oscuro</button>
+<!-- HEADER -->
+<header class="flex justify-between items-center p-4 bg-green-500 text-white shadow">
+  <h1 class="text-3xl font-bold">TaskFlow</h1>
+  <button id="darkModeToggle" class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">
+    🌙 Modo Oscuro
+  </button>
 </header>
 
-<main>
+<!-- MAIN LAYOUT -->
+<main class="flex flex-col md:flex-row p-4 gap-6">
 
-<aside>
-  <h2>Proyectos</h2>
-  <ul>
-    <li>Personal</li>
-    <li>Trabajo</li>
-    <li>Otros</li>
-  </ul>
+  <!-- ASIDE -->
+  <aside class="w-full md:w-64 p-4 bg-white dark:bg-gray-800 rounded shadow">
+    <h2 class="text-xl font-semibold mb-3">Proyectos</h2>
+    <ul class="mb-6 list-disc list-inside">
+      <li>Personal</li>
+      <li>Trabajo</li>
+      <li>Otros</li>
+    </ul>
 
-  <h2>Estadísticas</h2>
-  <p>Total: <span id="totalTasks">0</span></p>
-  <p>Completadas: <span id="completedTasks">0</span> (<span id="completedPercent">0%</span>)</p>
-  <p>Pendientes: <span id="pendingTasks">0</span> (<span id="pendingPercent">0%</span>)</p>
+    <h2 class="text-xl font-semibold mb-3">Estadísticas</h2>
+    <p class="mb-1">Total: <span id="totalTasks">0</span></p>
+    <p class="mb-1">Completadas: <span id="completedTasks">0</span> (<span id="completedPercent">0%</span>)</p>
+    <p class="mb-4">Pendientes: <span id="pendingTasks">0</span> (<span id="pendingPercent">0%</span>)</p>
 
-  <!-- 📊 DONUT -->
-  <div class="donut-container">
-    <div class="donut" id="donutChart">
-      <span id="donutText">0%</span>
+    <!-- DONUT -->
+    <div class="flex flex-col items-center mt-4">
+      <div id="donutChart" class="w-36 h-36 rounded-full flex items-center justify-center relative bg-gray-200 dark:bg-gray-700">
+        <span id="donutText" class="font-bold text-lg relative">0%</span>
+      </div>
+      <div class="text-center text-sm mt-2">
+        <p>🟢 Completadas: <span id="completedLabel">0%</span></p>
+        <p>🔴 Pendientes: <span id="pendingLabel">0%</span></p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TASKS SECTION -->
+  <section class="tasks-section w-full md:flex-1 flex flex-col">
+
+    <!-- INPUTS -->
+    <div class="flex flex-col sm:flex-row gap-2 mb-4">
+      <input type="text" id="taskInput" placeholder="Nueva tarea" class="flex-1 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
+      <select id="categorySelect" class="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 dark:bg-gray-700 dark:text-gray-100">
+        <option>Personal</option>
+        <option>Trabajo</option>
+        <option>Otros</option>
+      </select>
+      <select id="prioritySelect" class="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 dark:bg-gray-700 dark:text-gray-100">
+        <option value="high">Alta</option>
+        <option value="medium">Media</option>
+        <option value="low">Baja</option>
+      </select>
+      <button id="addTaskBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-bold shadow">
+        Añadir tarea
+      </button>
     </div>
 
-    <div class="donut-labels">
-      <p>🟢 Completadas: <span id="completedLabel">0%</span></p>
-      <p>🔴 Pendientes: <span id="pendingLabel">0%</span></p>
+    <!-- SEARCH -->
+    <input type="text" id="searchInput" placeholder="Buscar tarea" class="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 mb-4 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
+
+    <!-- TASK LIST -->
+    <section id="taskList" class="flex flex-col gap-3"></section>
+
+    <!-- FILTROS -->
+    <div class="flex justify-center gap-4 mt-6 mb-4">
+      <button onclick="setFilter('all')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-5 rounded shadow">Todas</button>
+      <button onclick="setFilter('pending')" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-5 rounded shadow">Pendientes</button>
+      <button onclick="setFilter('completed')" class="bg-green-500 hover:bg-green-600 text-white py-2 px-5 rounded shadow">Completadas</button>
     </div>
-  </div>
 
-</aside>
+  </section>
 
-<section class="tasks-section">
+</main>
 
-  <input type="text" id="taskInput" placeholder="Nueva tarea">
-
-  <select id="categorySelect">
-    <option value="Personal">Personal</option>
-    <option value="Trabajo">Trabajo</option>
-    <option value="Otros">Otros</option>
-  </select>
-
-  <select id="prioritySelect">
-    <option value="high">Alta</option>
-    <option value="medium">Media</option>
-    <option value="low">Baja</option>
-  </select>
-
-  <button id="addTaskBtn">Añadir tarea</button>
-
-  <input type="text" id="searchInput" placeholder="Buscar tarea">
-
-  <section class="tasks" id="taskList"></section>
-
-  <!-- BOTONES DE FILTRO ABAJO -->
-  <div class="filter-buttons">
-      <button onclick="setFilter('all')">Todas</button>
-      <button onclick="setFilter('pending')">Pendientes</button>
-      <button onclick="setFilter('completed')">Completadas</button>
-  </div>
-
-</section>
-
+<!-- APP.JS -->
 <script src="app.js"></script>
 </body>
 </html>
