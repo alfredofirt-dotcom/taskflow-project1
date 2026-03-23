@@ -42,7 +42,7 @@ function saveTasks() {
 }
 
 // --------------------------
-// AÑADIR TAREA (ANIMADA)
+// AÑADIR TAREA
 // --------------------------
 function addTask() {
     const text = taskInput.value.trim();
@@ -56,7 +56,7 @@ function addTask() {
         completed: false
     };
 
-    tasks.unshift(task);
+    tasks.push(task); // Se agrega al final
     saveTasks();
     renderTasks();
 
@@ -218,6 +218,30 @@ function renderTasks() {
     });
 
     updateStats();
+}
+
+// --------------------------
+// BOTONES EXTRA CON CONFIRMACIÓN
+// --------------------------
+function completeAll() {
+    if (confirm("¿Seguro que quieres marcar todas las tareas como completadas?")) {
+        tasks = tasks.map(task => ({ ...task, completed: true }));
+        updateAndRender();
+    }
+}
+
+function deleteAll() {
+    if (confirm("¿Seguro que quieres borrar todas las tareas?")) {
+        tasks = [];
+        updateAndRender();
+    }
+}
+
+function deleteCompleted() {
+    if (confirm("¿Seguro que quieres borrar todas las tareas completadas?")) {
+        tasks = tasks.filter(task => !task.completed);
+        updateAndRender();
+    }
 }
 
 // --------------------------
