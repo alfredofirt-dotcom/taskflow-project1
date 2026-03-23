@@ -8,7 +8,7 @@
 <!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- CONFIGURAR DARK MODE EN TAILWIND -->
+<!-- CONFIGURAR DARK MODE -->
 <script>
   tailwind.config = {
     darkMode: 'class'
@@ -26,7 +26,7 @@
   </button>
 </header>
 
-<!-- MAIN LAYOUT -->
+<!-- MAIN -->
 <main class="flex flex-col md:flex-row p-4 gap-6">
 
   <!-- ASIDE -->
@@ -55,8 +55,8 @@
     </div>
   </aside>
 
-  <!-- TASKS SECTION -->
-  <section class="tasks-section w-full md:flex-1 flex flex-col">
+  <!-- TASKS -->
+  <section class="w-full md:flex-1 flex flex-col">
 
     <!-- INPUTS -->
     <div class="flex flex-col sm:flex-row gap-2 mb-4">
@@ -76,24 +76,23 @@
       </button>
     </div>
 
-    <!-- SEARCH -->
+    <!-- BUSCADOR -->
     <input type="text" id="searchInput" placeholder="Buscar tarea" class="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 mb-4 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-    <!-- TASK LIST -->
-    <section id="taskList" class="flex flex-col gap-3"></section>
-
-    <!-- FILTROS -->
-    <div class="flex justify-center gap-4 mt-6 mb-4">
+    <!-- 🔥 BOTONES AQUÍ (DEBAJO DEL BUSCADOR) -->
+    <div class="flex justify-center gap-4 mb-4">
       <button onclick="setFilter('all')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-5 rounded shadow">Todas</button>
       <button onclick="setFilter('pending')" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-5 rounded shadow">Pendientes</button>
       <button onclick="setFilter('completed')" class="bg-green-500 hover:bg-green-600 text-white py-2 px-5 rounded shadow">Completadas</button>
     </div>
 
+    <!-- LISTA -->
+    <section id="taskList" class="flex flex-col gap-3"></section>
+
   </section>
 
 </main>
 
-<!-- APP.JS -->
 <script src="app.js"></script>
 </body>
 </html>

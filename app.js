@@ -19,6 +19,7 @@ const categorySelect = document.getElementById("categorySelect");
 const prioritySelect = document.getElementById("prioritySelect");
 const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
+const searchInput = document.getElementById("searchInput");
 
 // FILTRO
 let currentFilter = "all";
@@ -33,19 +34,16 @@ const priorityText = {
 // --------------------------
 // CARGAR TAREAS
 // --------------------------
-let tasks = [];
-try {
-    tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-} catch {
-    tasks = [];
-}
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 // Guardar tareas
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-// Añadir tarea
+// --------------------------
+// AÑADIR TAREA (ANIMADA)
+// --------------------------
 function addTask() {
     const text = taskInput.value.trim();
     if (!text) return;
@@ -58,15 +56,27 @@ function addTask() {
         completed: false
     };
 
-    tasks.push(task);
-    updateAndRender();
+    tasks.unshift(task);
+    saveTasks();
+    renderTasks();
+
     taskInput.value = "";
 }
 
-// Eliminar tarea
+// --------------------------
+// ELIMINAR CON ANIMACIÓN
+// --------------------------
 function deleteTask(id) {
-    tasks = tasks.filter(task => task.id !== id);
-    updateAndRender();
+    const element = document.querySelector(`[data-id='${id}']`);
+
+    if (element) {
+        element.classList.add("opacity-0", "translate-x-10");
+
+        setTimeout(() => {
+            tasks = tasks.filter(task => task.id !== id);
+            updateAndRender();
+        }, 300);
+    }
 }
 
 // Completar tarea
@@ -84,7 +94,7 @@ function editTask(id) {
 
     const newText = prompt("Editar tarea:", task.text);
 
-    if (newText !== null && newText.trim() !== "") {
+    if (newText && newText.trim()) {
         task.text = newText.trim();
         updateAndRender();
     }
@@ -103,7 +113,7 @@ function updateAndRender() {
 }
 
 // --------------------------
-// ESTADÍSTICAS Y DONUT
+// ESTADÍSTICAS
 // --------------------------
 function updateStats() {
     const total = tasks.length;
@@ -120,19 +130,15 @@ function updateStats() {
     completedPercent.textContent = completedPerc + "%";
     pendingPercent.textContent = pendingPerc + "%";
 
-    donutChart.style.background = `conic-gradient(
-        #4CAF50 0% ${completedPerc}%,
-        #f44336 ${completedPerc}% 100%
-    )`;
+    donutChart.style.background = `conic-gradient(#4CAF50 0% ${completedPerc}%, #f44336 ${completedPerc}% 100%)`;
 
     donutText.textContent = completedPerc + "%";
-
     completedLabel.textContent = completedPerc + "%";
     pendingLabel.textContent = pendingPerc + "%";
 }
 
 // --------------------------
-// RENDER TAREAS
+// RENDER CON ANIMACIONES PRO
 // --------------------------
 function renderTasks() {
     taskList.innerHTML = "";
@@ -140,33 +146,42 @@ function renderTasks() {
     let filteredTasks = tasks;
 
     if (currentFilter === "pending") {
-        filteredTasks = tasks.filter(t => !t.completed);
+        filteredTasks = filteredTasks.filter(t => !t.completed);
     } else if (currentFilter === "completed") {
-        filteredTasks = tasks.filter(t => t.completed);
+        filteredTasks = filteredTasks.filter(t => t.completed);
     }
 
-    filteredTasks.forEach(task => {
+    const searchText = searchInput.value.toLowerCase();
+
+    if (searchText) {
+        filteredTasks = filteredTasks.filter(task =>
+            task.text.toLowerCase().includes(searchText)
+        );
+    }
+
+    filteredTasks.forEach((task, index) => {
         const div = document.createElement("div");
+
+        div.setAttribute("data-id", task.id);
 
         div.className = `
             flex justify-between items-center p-4 rounded border-l-4 bg-white dark:bg-gray-800 shadow
-            ${task.completed ? "line-through opacity-60" : ""}
+            transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer
+            ${task.completed ? "line-through opacity-60 scale-95" : ""}
             ${task.priority === "high" ? "border-red-500" : ""}
             ${task.priority === "medium" ? "border-yellow-500" : ""}
             ${task.priority === "low" ? "border-green-500" : ""}
+            opacity-0 -translate-y-5
         `;
 
         div.innerHTML = `
             <div>
                 <h3 class="font-semibold">${task.text}</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400">${task.category}</p>
-
-                <span class="
-                    inline-block mt-1 px-2 py-1 text-xs rounded font-semibold
+                <span class="inline-block mt-1 px-2 py-1 text-xs rounded font-semibold
                     ${task.priority === "high" ? "bg-red-500 text-white" : ""}
                     ${task.priority === "medium" ? "bg-yellow-500 text-white" : ""}
-                    ${task.priority === "low" ? "bg-green-500 text-white" : ""}
-                ">
+                    ${task.priority === "low" ? "bg-green-500 text-white" : ""}">
                     ${priorityText[task.priority]}
                 </span>
             </div>
@@ -195,6 +210,11 @@ function renderTasks() {
 
         div.appendChild(buttonsDiv);
         taskList.appendChild(div);
+
+        // 🔥 ANIMACIÓN DE ENTRADA
+        setTimeout(() => {
+            div.classList.remove("opacity-0", "-translate-y-5");
+        }, index * 100);
     });
 
     updateStats();
@@ -209,14 +229,15 @@ taskInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") addTask();
 });
 
+searchInput.addEventListener("input", renderTasks);
+
 document.addEventListener("DOMContentLoaded", renderTasks);
 
 // --------------------------
-// 🌙 MODO OSCURO FUNCIONAL
+// MODO OSCURO
 // --------------------------
 const darkModeToggle = document.getElementById("darkModeToggle");
 
-// Cargar estado guardado al iniciar
 if (localStorage.getItem("darkMode") === "true") {
     document.documentElement.classList.add("dark");
     darkModeToggle.textContent = "☀️ Modo Claro";
@@ -224,13 +245,11 @@ if (localStorage.getItem("darkMode") === "true") {
     darkModeToggle.textContent = "🌙 Modo Oscuro";
 }
 
-// Evento click
 darkModeToggle.addEventListener("click", () => {
     document.documentElement.classList.toggle("dark");
 
     const isDark = document.documentElement.classList.contains("dark");
     localStorage.setItem("darkMode", isDark);
 
-    // Cambiar texto del botón
     darkModeToggle.textContent = isDark ? "☀️ Modo Claro" : "🌙 Modo Oscuro";
 });
