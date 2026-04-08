@@ -21,7 +21,9 @@ const addTaskBtn = document.getElementById("addTaskBtn");
 const taskList = document.getElementById("taskList");
 const searchInput = document.getElementById("searchInput");
 
+// --------------------------
 // FILTRO
+// --------------------------
 let currentFilter = "all";
 
 // Traducción de prioridad
@@ -56,10 +58,9 @@ function addTask() {
         completed: false
     };
 
-    tasks.push(task); // Se agrega al final
+    tasks.push(task);
     saveTasks();
     renderTasks();
-
     taskInput.value = "";
 }
 
@@ -68,10 +69,8 @@ function addTask() {
 // --------------------------
 function deleteTask(id) {
     const element = document.querySelector(`[data-id='${id}']`);
-
     if (element) {
         element.classList.add("opacity-0", "translate-x-10");
-
         setTimeout(() => {
             tasks = tasks.filter(task => task.id !== id);
             updateAndRender();
@@ -79,7 +78,9 @@ function deleteTask(id) {
     }
 }
 
-// Completar tarea
+// --------------------------
+// COMPLETAR / EDITAR
+// --------------------------
 function toggleComplete(id) {
     tasks = tasks.map(task =>
         task.id === id ? { ...task, completed: !task.completed } : task
@@ -87,29 +88,49 @@ function toggleComplete(id) {
     updateAndRender();
 }
 
-// Editar tarea
 function editTask(id) {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
-
     const newText = prompt("Editar tarea:", task.text);
-
     if (newText && newText.trim()) {
         task.text = newText.trim();
         updateAndRender();
     }
 }
 
-// Filtro
+// --------------------------
+// FILTROS
+// --------------------------
 function setFilter(filter) {
     currentFilter = filter;
     renderTasks();
 }
 
-// Guardar + render
+// --------------------------
+// GUARDAR Y RENDERIZAR
+// --------------------------
 function updateAndRender() {
     saveTasks();
     renderTasks();
+}
+
+// --------------------------
+// FILTRO DE TAREAS POR ESTADO, BÚSQUEDA, CATEGORÍA Y PRIORIDAD
+// --------------------------
+function filterTasks() {
+    return tasks.filter(task => {
+        const matchesFilter =
+            currentFilter === "all" ||
+            (currentFilter === "completed" && task.completed) ||
+            (currentFilter === "pending" && !task.completed);
+
+        const matchesSearch = task.text.toLowerCase().includes(searchInput.value.toLowerCase());
+
+        const matchesCategory = !categorySelect.value || task.category === categorySelect.value;
+        const matchesPriority = !prioritySelect.value || task.priority === prioritySelect.value;
+
+        return matchesFilter && matchesSearch && matchesCategory && matchesPriority;
+    });
 }
 
 // --------------------------
@@ -131,39 +152,22 @@ function updateStats() {
     pendingPercent.textContent = pendingPerc + "%";
 
     donutChart.style.background = `conic-gradient(#4CAF50 0% ${completedPerc}%, #f44336 ${completedPerc}% 100%)`;
-
     donutText.textContent = completedPerc + "%";
     completedLabel.textContent = completedPerc + "%";
     pendingLabel.textContent = pendingPerc + "%";
 }
 
 // --------------------------
-// RENDER CON ANIMACIONES PRO
+// RENDER CON ANIMACIONES
 // --------------------------
 function renderTasks() {
     taskList.innerHTML = "";
 
-    let filteredTasks = tasks;
-
-    if (currentFilter === "pending") {
-        filteredTasks = filteredTasks.filter(t => !t.completed);
-    } else if (currentFilter === "completed") {
-        filteredTasks = filteredTasks.filter(t => t.completed);
-    }
-
-    const searchText = searchInput.value.toLowerCase();
-
-    if (searchText) {
-        filteredTasks = filteredTasks.filter(task =>
-            task.text.toLowerCase().includes(searchText)
-        );
-    }
+    const filteredTasks = filterTasks();
 
     filteredTasks.forEach((task, index) => {
         const div = document.createElement("div");
-
         div.setAttribute("data-id", task.id);
-
         div.className = `
             flex justify-between items-center p-4 rounded border-l-4 bg-white dark:bg-gray-800 shadow
             transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer
@@ -211,7 +215,6 @@ function renderTasks() {
         div.appendChild(buttonsDiv);
         taskList.appendChild(div);
 
-        // 🔥 ANIMACIÓN DE ENTRADA
         setTimeout(() => {
             div.classList.remove("opacity-0", "-translate-y-5");
         }, index * 100);
@@ -221,7 +224,7 @@ function renderTasks() {
 }
 
 // --------------------------
-// BOTONES EXTRA CON CONFIRMACIÓN
+// BOTONES EXTRA
 // --------------------------
 function completeAll() {
     if (confirm("¿Seguro que quieres marcar todas las tareas como completadas?")) {
@@ -248,13 +251,10 @@ function deleteCompleted() {
 // EVENTOS
 // --------------------------
 addTaskBtn.addEventListener("click", addTask);
-
-taskInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") addTask();
-});
-
+taskInput.addEventListener("keypress", e => { if (e.key === "Enter") addTask(); });
 searchInput.addEventListener("input", renderTasks);
-
+categorySelect.addEventListener("change", renderTasks);
+prioritySelect.addEventListener("change", renderTasks);
 document.addEventListener("DOMContentLoaded", renderTasks);
 
 // --------------------------
@@ -271,9 +271,7 @@ if (localStorage.getItem("darkMode") === "true") {
 
 darkModeToggle.addEventListener("click", () => {
     document.documentElement.classList.toggle("dark");
-
     const isDark = document.documentElement.classList.contains("dark");
     localStorage.setItem("darkMode", isDark);
-
     darkModeToggle.textContent = isDark ? "☀️ Modo Claro" : "🌙 Modo Oscuro";
 });

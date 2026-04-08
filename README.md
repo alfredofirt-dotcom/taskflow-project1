@@ -50,5 +50,5 @@ TaskFlow/
 
 ## Autorores
 
-Proyecto desarrollado por **Elis Alfredo Mendoza Y LiZ Solangel Muñoz**
+Proyecto desarrollado por **Elis Alfredo Mendoza Y Liz Solangel Muñoz**
 
